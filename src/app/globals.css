@@ -1,0 +1,227 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --puma-red: #E42A2A;
+  --puma-black: #1A1A1A;
+  --puma-gold: #FFB300;
+  --puma-white: #FFFFFF;
+  --puma-gray: #2D2D2D;
+  --glow-red: rgba(228, 42, 42, 0.4);
+  --background: #0A0A0A;
+  --foreground: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Selection */
+::selection {
+  background-color: var(--puma-red);
+  color: var(--puma-white);
+}
+
+::-moz-selection {
+  background-color: var(--puma-red);
+  color: var(--puma-white);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--puma-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--puma-red);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff3d3d;
+}
+
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--puma-red) var(--puma-black);
+}
+
+/* Athletic Utility Classes */
+@layer utilities {
+  .text-gradient-puma {
+    background: linear-gradient(135deg, var(--puma-red) 0%, var(--puma-gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .diagonal-clip {
+    clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .diagonal-clip-reverse {
+    clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+  }
+
+  .diagonal-split {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  }
+
+  .glow-red {
+    box-shadow: 0 0 20px var(--glow-red), 0 0 40px rgba(228, 42, 42, 0.2);
+  }
+
+  .text-shadow-athletic {
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .backdrop-blur-dark {
+    backdrop-filter: blur(20px);
+    background: rgba(10, 10, 10, 0.8);
+  }
+
+  .border-glow {
+    border: 1px solid rgba(228, 42, 42, 0.3);
+    box-shadow: inset 0 0 20px rgba(228, 42, 42, 0.1);
+  }
+}
+
+/* Diagonal Pattern Overlay */
+.diagonal-pattern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(228, 42, 42, 0.03) 10px,
+    rgba(228, 42, 42, 0.03) 20px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Hero Title Animations */
+.hero-letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(30px) rotateX(-90deg);
+  animation: letterReveal 0.5s ease-out forwards;
+}
+
+@keyframes letterReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+  }
+}
+
+/* Scroll Progress Bar */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--puma-red), var(--puma-gold));
+  z-index: 9999;
+  transform-origin: left;
+}
+
+/* Canvas Container */
+.canvas-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas-container canvas {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Aggressive Button Styles */
+.btn-aggressive {
+  position: relative;
+  padding: 1rem 2.5rem;
+  background: var(--puma-red);
+  color: white;
+  font-family: var(--font-rajdhani), sans-serif;
+  font-weight: 700;
+  font-size: 1.125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: none;
+  cursor: pointer;
+  clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-aggressive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--puma-red) 0%, var(--puma-gold) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.btn-aggressive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(228, 42, 42, 0.4);
+}
+
+.btn-aggressive:hover::before {
+  opacity: 1;
+}
+
+/* Stat Counter Animations */
+.stat-number {
+  font-family: var(--font-rajdhani), sans-serif;
+  font-weight: 700;
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--puma-red);
+}
+
+/* Section Transitions */
+.section-fade-in {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.section-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
