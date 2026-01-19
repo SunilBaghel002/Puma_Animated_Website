@@ -5,7 +5,6 @@ import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-mo
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductShoeScroll from '@/components/ProductShoeScroll';
-import ProductTextOverlays from '@/components/ProductTextOverlays';
 import SizeSelector from '@/components/SizeSelector';
 import ParticleBackground from '@/components/ParticleBackground';
 import { product } from '@/data/product';
@@ -16,7 +15,7 @@ export default function Home() {
     const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
     return (
-        <main className="relative bg-pumaBlack min-h-screen overflow-x-hidden">
+        <main className="relative bg-pumaBlack min-h-screen">
             {/* Scroll Progress Bar */}
             <motion.div
                 style={{ scaleX: smoothProgress }}
@@ -32,11 +31,8 @@ export default function Home() {
             {/* Hero Section */}
             <HeroSection />
 
-            {/* Scrollytelling Section with Shoe Animation */}
-            <section className="relative">
-                <ProductShoeScroll />
-                <ProductTextOverlays />
-            </section>
+            {/* Scrollytelling Section with Shoe Animation - Text overlays integrated */}
+            <ProductShoeScroll />
 
             {/* Product Details Section */}
             <ProductDetailsSection />
@@ -490,8 +486,8 @@ function BuyNowSection({
                             whileTap={{ scale: 0.98 }}
                             disabled={!selectedSize}
                             className={`w-full py-5 font-rajdhani font-bold text-xl uppercase tracking-wider rounded-xl transition-all duration-300 ${selectedSize
-                                    ? 'bg-pumaRed text-white hover:shadow-xl hover:shadow-pumaRed/30 animate-pulse-glow'
-                                    : 'bg-white/10 text-white/40 cursor-not-allowed'
+                                ? 'bg-pumaRed text-white hover:shadow-xl hover:shadow-pumaRed/30 animate-pulse-glow'
+                                : 'bg-white/10 text-white/40 cursor-not-allowed'
                                 }`}
                         >
                             {selectedSize ? `Add to Cart - ${product.price}` : 'Select a Size'}
