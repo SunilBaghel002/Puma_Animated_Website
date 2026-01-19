@@ -40,6 +40,9 @@ export default function Home() {
             {/* Performance Stats Section */}
             <PerformanceStatsSection />
 
+            {/* Featured Products Section */}
+            <FeaturedProductsSection />
+
             {/* Buy Now Section */}
             <BuyNowSection selectedSize={selectedSize} onSizeChange={setSelectedSize} />
 
@@ -195,16 +198,16 @@ function ProductDetailsSection() {
                         transition={{ duration: 0.8 }}
                         className="relative"
                     >
-                        {/* Placeholder for product detail image */}
-                        <div className="aspect-square bg-gradient-to-br from-pumaGray to-pumaBlack rounded-2xl border border-white/10 flex items-center justify-center overflow-hidden">
-                            <div className="text-center p-8">
-                                <svg className="w-24 h-24 mx-auto mb-4 text-pumaRed/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <p className="font-inter text-white/40 text-sm">
-                                    {product.detailsSection.imageAlt}
-                                </p>
-                            </div>
+                        {/* Product Detail Image */}
+                        <div className="aspect-square bg-gradient-to-br from-pumaGray to-pumaBlack rounded-2xl border border-white/10 flex items-center justify-center overflow-hidden relative group">
+                            <img
+                                src={`${product.folderPath}/60.jpg`}
+                                alt={product.detailsSection.imageAlt}
+                                className="w-full h-full object-contain p-8 transition-transform duration-500 group-hover:scale-110"
+                            />
+
+                            {/* Glow effect */}
+                            <div className="absolute inset-0 bg-gradient-radial from-pumaRed/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                             {/* Decorative Elements */}
                             <div className="absolute top-4 left-4 w-16 h-16 border-l-2 border-t-2 border-pumaRed/50" />
@@ -370,6 +373,185 @@ function PerformanceStatsSection() {
     );
 }
 
+// Featured Products Section
+function FeaturedProductsSection() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const isInView = useInView(containerRef, { once: true, margin: '-100px' });
+
+    // Different shoe products with unique images
+    const featuredProducts = [
+        {
+            id: 1,
+            name: 'Velocity X',
+            category: 'Running',
+            price: '₹14,999',
+            image: '/images/shoes/velocity-red.png',
+            color: 'Red/Black'
+        },
+        {
+            id: 2,
+            name: 'Deviate Nitro',
+            category: 'Performance',
+            price: '₹16,999',
+            image: '/images/shoes/deviate-blue.png',
+            color: 'Blue/White'
+        },
+        {
+            id: 3,
+            name: 'Liberate Nitro',
+            category: 'Training',
+            price: '₹12,999',
+            image: '/images/shoes/training-black.png',
+            color: 'Black/Gold'
+        },
+        {
+            id: 4,
+            name: 'Velocity Pro',
+            category: 'Elite',
+            price: '₹19,999',
+            image: '/images/shoes/elite-white.png',
+            color: 'White/Red'
+        },
+        {
+            id: 5,
+            name: 'Fast-R Nitro',
+            category: 'Racing',
+            price: '₹15,999',
+            image: '/images/shoes/racing-green.png',
+            color: 'Green/Black'
+        },
+        {
+            id: 6,
+            name: 'Magnify Nitro',
+            category: 'Cushioned',
+            price: '₹13,999',
+            image: '/images/shoes/cushioned-grey.png',
+            color: 'Grey/Volt'
+        },
+    ];
+
+    return (
+        <section ref={containerRef} className="relative py-24 md:py-32 overflow-hidden">
+            {/* Background */}
+            <div className="absolute inset-0 bg-gradient-to-b from-pumaBlack via-[#0d0d0d] to-pumaBlack" />
+
+            {/* Decorative Pattern */}
+            <div className="absolute inset-0 opacity-5">
+                <div className="absolute top-0 left-0 w-full h-full" style={{
+                    backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 50px, rgba(228,42,42,0.1) 50px, rgba(228,42,42,0.1) 100px)'
+                }} />
+            </div>
+
+            <div className="max-w-7xl mx-auto px-6 relative z-10">
+                {/* Section Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.6 }}
+                    className="text-center mb-16"
+                >
+                    <div className="flex items-center justify-center gap-4 mb-4">
+                        <div className="h-px w-12 bg-pumaRed" />
+                        <span className="font-inter text-pumaRed text-sm tracking-widest uppercase">Collection</span>
+                        <div className="h-px w-12 bg-pumaRed" />
+                    </div>
+                    <h2 className="font-rajdhani font-bold text-4xl md:text-5xl lg:text-6xl text-white mb-4">
+                        Explore More Styles
+                    </h2>
+                    <p className="font-inter text-white/60 text-lg max-w-2xl mx-auto">
+                        Discover our complete range of high-performance running shoes designed for every type of runner.
+                    </p>
+                </motion.div>
+
+                {/* Products Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {featuredProducts.map((shoe, index) => (
+                        <motion.div
+                            key={shoe.id}
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={isInView ? { opacity: 1, y: 0 } : {}}
+                            transition={{ duration: 0.6, delay: 0.1 * index }}
+                            className="group cursor-pointer"
+                        >
+                            <div className="relative bg-gradient-to-br from-zinc-900 to-black rounded-2xl overflow-hidden border border-white/5 hover:border-pumaRed/30 transition-all duration-500">
+                                {/* Image Container */}
+                                <div className="aspect-square relative overflow-hidden">
+                                    <img
+                                        src={shoe.image}
+                                        alt={shoe.name}
+                                        className="w-full h-full object-contain p-6 transition-all duration-700 group-hover:scale-110 group-hover:rotate-6"
+                                    />
+
+                                    {/* Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
+
+                                    {/* Category Badge */}
+                                    <div className="absolute top-4 left-4 bg-pumaRed/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                                        <span className="font-inter text-xs font-bold text-white uppercase tracking-wider">{shoe.category}</span>
+                                    </div>
+
+                                    {/* Quick View Button */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileHover={{ opacity: 1, y: 0 }}
+                                        className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <button className="bg-white text-black font-rajdhani font-bold px-6 py-2 rounded-full uppercase text-sm hover:bg-pumaRed hover:text-white transition-colors">
+                                            Quick View
+                                        </button>
+                                    </motion.div>
+                                </div>
+
+                                {/* Product Info */}
+                                <div className="p-6">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <div>
+                                            <h3 className="font-rajdhani font-bold text-xl text-white group-hover:text-pumaRed transition-colors">
+                                                {shoe.name}
+                                            </h3>
+                                            <p className="font-inter text-white/50 text-sm">{shoe.color}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="font-rajdhani font-bold text-lg text-pumaGold">{shoe.price}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Add to Cart Row */}
+                                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 rounded-full bg-pumaRed" />
+                                            <div className="w-3 h-3 rounded-full bg-black border border-white/20" />
+                                            <div className="w-3 h-3 rounded-full bg-white" />
+                                        </div>
+                                        <button className="font-inter text-sm text-white/60 hover:text-pumaRed transition-colors flex items-center gap-2">
+                                            Add to Cart
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+
+                {/* View All Button */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={isInView ? { opacity: 1 } : {}}
+                    transition={{ duration: 0.6, delay: 0.8 }}
+                    className="text-center mt-12"
+                >
+                    <button className="btn-aggressive text-lg px-12 py-4">
+                        View All Products
+                    </button>
+                </motion.div>
+            </div>
+        </section>
+    );
+}
+
 // Counter Stat Component
 function CounterStat({ value, isInView, delay }: { value: string; isInView: boolean; delay: number }) {
     const [displayValue, setDisplayValue] = useState('0');
@@ -438,15 +620,16 @@ function BuyNowSection({
                         transition={{ duration: 0.8 }}
                         className="relative"
                     >
-                        {/* Placeholder for product image */}
-                        <div className="aspect-square bg-gradient-to-br from-pumaGray to-pumaBlack rounded-3xl flex items-center justify-center overflow-hidden border border-white/10">
-                            <div className="text-center">
-                                <svg className="w-40 h-40 mx-auto text-pumaRed/30" viewBox="0 0 512 250" fill="currentColor">
-                                    <path d="M196.71,10.39c-1.69,8.99-3.37,17.99-5.06,26.98c-7.82,41.72-15.58,83.45-23.54,125.14c-1.59,8.35-3.18,15.34-11.77,20.11c-15.61,8.66-31.02,17.69-46.41,26.74c-2.24,1.32-4.09,3.28-6.12,4.95c1.41,1.43,2.44,3.32,4.27,4.21c12.57,6.13,25.24,12.06,37.9,18.02c2.45,1.16,4.96,2.19,7.86,3.47c1.46-7.15,2.81-13.67,4.11-20.2c6.67-33.47,13.31-66.95,20.02-100.41c1.17-5.84,2.62-11.63,3.83-17.46c0.58-2.79,1.93-4.1,4.83-4.46c21.72-2.66,43.43-5.41,65.14-8.15c6.12-0.77,12.21-1.73,18.35-2.36c3.11-0.32,4.88-1.37,5.58-4.53c2.92-13.23,6.09-26.4,9.23-39.58c0.52-2.17,1.27-4.28,2.05-6.86c-2.13,0-3.77,0-5.41,0c-26.88,0-53.75,0.08-80.63-0.07C195.14,35.88,193.46,19.14,196.71,10.39z" />
-                                    <path d="M378.05,77.55c-0.49,2.54-0.85,5.12-1.49,7.62c-6.08,23.78-12.25,47.54-18.33,71.32c-0.93,3.64-1.54,7.36-2.47,11c-0.42,1.64-0.44,3.79-1.5,4.86c-1.19,1.2-3.33,1.75-5.14,1.96c-8.65,1.01-17.33,1.76-26,2.61c-17.14,1.68-34.27,3.41-51.42,5.04c-5.35,0.51-6.51,1.61-7.62,6.92c-2.71,13.02-5.52,26.02-8.25,39.04c-0.41,1.95-0.61,3.94-1.03,6.72c2.3,0,4.16,0,6.02,0c23.93,0,47.86-0.04,71.79,0.04c4.82,0.02,8.15-1.62,10.75-5.62c6.07-9.36,12.45-18.5,18.69-27.74c0.57-0.84,1.06-1.74,1.77-2.91c-4.06,0-7.64,0-11.72,0c1.09-5.86,2.05-11.38,3.17-16.86c0.26-1.27,0.88-2.67,1.75-3.59c5.55-5.87,11.23-11.62,16.89-17.38c5.14-5.23,10.26-10.5,15.52-15.6c0.96-0.93,2.48-1.79,3.72-1.77c15.14,0.21,30.28,0.63,45.42,0.97c5.38,0.12,10.75,0.24,16.13,0.35c0.18,0,0.35-0.1,0.94-0.29c0.31-1.45,0.76-3.02,0.99-4.63c1.55-10.88,3.02-21.78,4.55-32.66c0.61-4.33,1.3-8.64,1.95-12.97c-31.38,0-62.27,0-93.54,0c0.83-3.87,1.53-7.35,2.33-10.8c1.2-5.17,2.52-10.31,3.71-15.48c0.43-1.86,0.95-3.39,3.41-3.4c12.78-0.08,25.55-0.36,38.33-0.44c13.27-0.08,26.55-0.04,39.82-0.02c1.79,0,3.58,0.16,5.79,0.27c0.82-4.35,1.58-8.42,2.36-12.49c1.24-6.53,2.52-13.05,3.74-19.58c0.61-3.28,1.12-6.58,1.8-10.65c-2.05,0-3.59,0-5.13,0c-27.71,0-55.42-0.02-83.13,0.03c-2.1,0-3.55,0.32-4.35,2.79C382.9,48.39,380.41,62.89,378.05,77.55z" />
-                                </svg>
-                                <p className="font-rajdhani font-bold text-3xl text-white/20 mt-4">VELOCITY X</p>
-                            </div>
+                        {/* Product Image */}
+                        <div className="aspect-square bg-gradient-to-br from-pumaGray to-pumaBlack rounded-3xl flex items-center justify-center overflow-hidden border border-white/10 relative group">
+                            <img
+                                src={`${product.folderPath}/90.jpg`}
+                                alt="Velocity X Product"
+                                className="w-full h-full object-contain p-8 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3"
+                            />
+
+                            {/* Glow effect */}
+                            <div className="absolute inset-0 bg-gradient-radial from-pumaRed/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
 
                         {/* Floating Price Tag */}

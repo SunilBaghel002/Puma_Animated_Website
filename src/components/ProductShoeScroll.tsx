@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
-import { useScroll, useTransform, useSpring, motion, MotionValue } from 'framer-motion';
+import { useRef, useEffect, useState, useCallback } from 'react';
+import { useScroll, useTransform, useSpring, motion, MotionValue, animate } from 'framer-motion';
 import { product } from '@/data/product';
 
 export default function ProductShoeScroll() {
@@ -9,6 +9,10 @@ export default function ProductShoeScroll() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [images, setImages] = useState<HTMLImageElement[]>([]);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+    const [displayFrame, setDisplayFrame] = useState(0);
+    const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const lastScrollProgressRef = useRef(0);
     const totalFrames = 120;
 
     // Scroll Progress - tracks scroll within the container
@@ -26,6 +30,79 @@ export default function ProductShoeScroll() {
 
     // Map progress (0-1) to frame index (0-119)
     const frameIndex = useTransform(smoothProgress, [0, 1], [0, totalFrames - 1]);
+
+    // Handle scroll stop and auto-complete animation
+    useEffect(() => {
+        const unsubscribe = scrollYProgress.on('change', (progress) => {
+            lastScrollProgressRef.current = progress;
+
+            // Clear any existing timeout
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+            }
+
+            // If not auto-playing, update display frame from scroll
+            if (!isAutoPlaying) {
+                setDisplayFrame(Math.floor(progress * (totalFrames - 1)));
+            }
+
+            // Set a timeout to detect when scrolling stops
+            scrollTimeoutRef.current = setTimeout(() => {
+                // User stopped scrolling - check if we should auto-complete
+                if (progress > 0.5 && progress < 1) {
+                    // Scroll more than 50% - animate to 100%
+                    autoAnimateTo(1);
+                } else if (progress > 0 && progress <= 0.5) {
+                    // Scroll less than 50% - animate back to 20%
+                    autoAnimateTo(0.2);
+                }
+            }, 300); // Wait 300ms after scroll stops
+        });
+
+        return () => {
+            unsubscribe();
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+            }
+        };
+    }, [scrollYProgress, isAutoPlaying]);
+
+    // Auto-animate to target progress
+    const autoAnimateTo = useCallback((targetProgress: number) => {
+        if (!containerRef.current || isAutoPlaying) return;
+
+        setIsAutoPlaying(true);
+
+        const startProgress = lastScrollProgressRef.current;
+        const startFrame = Math.floor(startProgress * (totalFrames - 1));
+        const targetFrame = Math.floor(targetProgress * (totalFrames - 1));
+
+        // Animate the display frame
+        animate(startFrame, targetFrame, {
+            duration: Math.abs(targetFrame - startFrame) * 0.02, // ~20ms per frame
+            ease: "easeOut",
+            onUpdate: (value) => {
+                setDisplayFrame(Math.floor(value));
+            },
+            onComplete: () => {
+                setIsAutoPlaying(false);
+                // Scroll to the target position
+                if (containerRef.current) {
+                    const containerRect = containerRef.current.getBoundingClientRect();
+                    const containerTop = containerRect.top + window.scrollY;
+                    const containerHeight = containerRect.height;
+                    const windowHeight = window.innerHeight;
+                    const scrollableDistance = containerHeight - windowHeight;
+                    const targetScrollY = containerTop + (scrollableDistance * targetProgress);
+
+                    window.scrollTo({
+                        top: targetScrollY,
+                        behavior: 'instant'
+                    });
+                }
+            }
+        });
+    }, [isAutoPlaying]);
 
     // Preload all images
     useEffect(() => {
@@ -59,7 +136,7 @@ export default function ProductShoeScroll() {
         return () => { isMounted = false; };
     }, []);
 
-    // Canvas Drawing Logic - runs on every animation frame
+    // Canvas Drawing Logic
     useEffect(() => {
         let animationFrameId: number;
 
@@ -68,17 +145,20 @@ export default function ProductShoeScroll() {
             const ctx = canvas?.getContext('2d');
             if (!canvas || !ctx || !isLoaded || images.length === 0) return;
 
-            // Get current frame from the motion value
-            const currentFrame = Math.floor(frameIndex.get());
-            const img = images[currentFrame] || images[0];
+            // Use displayFrame when auto-playing, otherwise use scroll-driven frame
+            const currentFrame = isAutoPlaying
+                ? displayFrame
+                : Math.floor(frameIndex.get());
+
+            const img = images[Math.max(0, Math.min(currentFrame, images.length - 1))] || images[0];
 
             if (!img || !img.complete) return;
 
-            // Handle resize - set canvas to window size
+            // Handle resize
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            // Draw image (contain mode with 0.85 scale to leave room for text)
+            // Draw image (contain mode)
             const scale = Math.min(canvas.width / img.width, canvas.height / img.height) * 0.85;
             const x = (canvas.width / 2) - (img.width / 2) * scale;
             const y = (canvas.height / 2) - (img.height / 2) * scale;
@@ -87,7 +167,6 @@ export default function ProductShoeScroll() {
             ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
         };
 
-        // Render loop for smooth animation
         const loop = () => {
             render();
             animationFrameId = requestAnimationFrame(loop);
@@ -97,7 +176,7 @@ export default function ProductShoeScroll() {
         return () => {
             cancelAnimationFrame(animationFrameId);
         };
-    }, [isLoaded, images, frameIndex]);
+    }, [isLoaded, images, frameIndex, isAutoPlaying, displayFrame]);
 
     return (
         <div ref={containerRef} className="h-[300vh] relative bg-black">
@@ -111,23 +190,27 @@ export default function ProductShoeScroll() {
                 </div>
             )}
 
-            {/* Sticky container - stays fixed while scrolling */}
+            {/* Sticky container */}
             <div className="sticky top-0 h-screen w-full overflow-hidden">
-                {/* Canvas for shoe animation */}
                 <canvas
                     ref={canvasRef}
                     className="w-full h-full object-contain relative z-0"
                 />
 
-                {/* Bottom gradient overlay */}
+                {/* Gradient overlays */}
                 <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent z-5 pointer-events-none" />
-
-                {/* Side gradients for polish */}
                 <div className="absolute top-0 bottom-0 left-0 w-24 bg-gradient-to-r from-black/50 to-transparent z-5 pointer-events-none" />
                 <div className="absolute top-0 bottom-0 right-0 w-24 bg-gradient-to-l from-black/50 to-transparent z-5 pointer-events-none" />
 
                 {/* Text Overlays */}
                 <ProductTextOverlays scrollYProgress={scrollYProgress} />
+
+                {/* Auto-play indicator */}
+                {isAutoPlaying && (
+                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-pumaRed/80 px-4 py-2 rounded-full z-20">
+                        <span className="text-white text-sm font-rajdhani uppercase tracking-widest">Auto-playing...</span>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -139,22 +222,13 @@ interface ProductTextOverlaysProps {
 }
 
 function ProductTextOverlays({ scrollYProgress }: ProductTextOverlaysProps) {
-    // Section 1: Start immediately (0-25%)
     const opacity1 = useTransform(scrollYProgress, [0, 0.15, 0.20, 0.25], [1, 1, 1, 0]);
     const y1 = useTransform(scrollYProgress, [0, 0.25], [0, -100]);
-
-    // Section 2: 30-50%
     const opacity2 = useTransform(scrollYProgress, [0.30, 0.40, 0.45, 0.50], [0, 1, 1, 0]);
     const x2 = useTransform(scrollYProgress, [0.30, 0.50], [-50, 0]);
-
-    // Section 3: 55-75%
     const opacity3 = useTransform(scrollYProgress, [0.55, 0.65, 0.70, 0.75], [0, 1, 1, 0]);
     const scale3 = useTransform(scrollYProgress, [0.55, 0.75], [0.8, 1.1]);
-
-    // Section 4: 80-100%
     const opacity4 = useTransform(scrollYProgress, [0.80, 0.90, 0.95, 1], [0, 1, 1, 0]);
-
-    // Scroll indicator opacity
     const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 
     return (
