@@ -9,6 +9,7 @@ export default function ProductShoeScroll() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [images, setImages] = useState<HTMLImageElement[]>([]);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [loadingProgress, setLoadingProgress] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(false);
     const [displayFrame, setDisplayFrame] = useState(0);
     const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -110,14 +111,21 @@ export default function ProductShoeScroll() {
         const loadImages = async () => {
             const loaded: HTMLImageElement[] = [];
             const promises = [];
+            let loadedCount = 0;
 
             for (let i = 1; i <= totalFrames; i++) {
                 const promise = new Promise<void>((resolve) => {
                     const img = new Image();
                     img.src = `${product.folderPath}/${i}.jpg`;
-                    img.onload = () => resolve();
+                    img.onload = () => {
+                        loadedCount++;
+                        setLoadingProgress(Math.round((loadedCount / totalFrames) * 100));
+                        resolve();
+                    };
                     img.onerror = () => {
                         console.warn(`Failed to load image: ${img.src}`);
+                        loadedCount++;
+                        setLoadingProgress(Math.round((loadedCount / totalFrames) * 100));
                         resolve();
                     };
                     loaded.push(img);
@@ -181,11 +189,31 @@ export default function ProductShoeScroll() {
     return (
         <div ref={containerRef} className="h-[300vh] relative bg-black">
             {/* Loading indicator */}
+            {/* Loading indicator */}
             {!isLoaded && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black">
-                    <div className="text-center">
-                        <div className="w-16 h-16 border-4 border-pumaRed border-t-transparent rounded-full animate-spin mb-4" />
-                        <span className="text-white font-rajdhani text-2xl uppercase tracking-widest">Loading Assets...</span>
+                <div className="fixed inset-0 flex flex-col items-center justify-center z-50 bg-black">
+                    <div className="relative">
+                        {/* Percentage */}
+                        <div className="text-[8rem] md:text-[12rem] font-rajdhani font-bold leading-none text-transparent bg-clip-text bg-gradient-to-t from-pumaRed to-white tracking-tighter mix-blend-screen">
+                            {loadingProgress}%
+                        </div>
+
+                        {/* Loading Text */}
+                        <div className="absolute -bottom-8 left-0 right-0 text-center">
+                            <span className="text-white/60 font-inter text-sm uppercase tracking-[0.5em] animate-pulse">
+                                Initializing Velocity
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="w-64 h-1 bg-white/10 mt-16 rounded-full overflow-hidden">
+                        <motion.div
+                            className="h-full bg-pumaRed"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${loadingProgress}%` }}
+                            transition={{ duration: 0.1 }}
+                        />
                     </div>
                 </div>
             )}
